@@ -16,13 +16,15 @@
 
 ### Linux
 ```bash
-uv init
+uv venv
+uv sync
 source ./.venv/bin/activate
 ```
 
 ### Windows
 ```bash
-uv init
+uv venv
+uv sync
 .venv/bin/activate
 ```
 
@@ -34,13 +36,7 @@ uv init
 4. 将训练好的 Pipeline 序列化保存到 `models/melb_gbr_pipeline.joblib`，方便后续加载推理。
 
 ## CLI：`property train` & `property calc`
-1. 在虚拟环境中直接通过 `property` 命令调用，可执行可编辑安装：
-
-```bash
-uv pip install .
-```
-
-安装完成后，可使用 `property train` / `property calc`。
+1. 在虚拟环境中直接通过 `property` 命令调用 `property train` / `property calc`。
 
 2. 训练：
 
