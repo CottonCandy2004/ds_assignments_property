@@ -17,6 +17,10 @@
 ```bash
 uv add pandas scikit-learn scipy matplotlib ipykernel joblib
 ```
+or
+```bash
+uv build
+```
 
 脚本将：
 
@@ -29,7 +33,7 @@ uv add pandas scikit-learn scipy matplotlib ipykernel joblib
 1. 在虚拟环境中直接通过 `property` 命令调用，可执行可编辑安装：
 
 ```bash
-pip install -e .
+uv pip install -e .
 ```
 
 安装完成后，可在任意位置使用 `property train` / `property calc`（使用相对路径或参数指定数据/模型位置）。
@@ -37,7 +41,7 @@ pip install -e .
 2. 训练：
 
 ```bash
-./property train --data data/melb_data.csv --model models/melb_gbr_pipeline.joblib
+./property train [--data data/melb_data.csv] [--model models/melb_gbr_pipeline.joblib]
 ```
 
 	- 默认启用 `HistGradientBoostingRegressor`，可自动利用多核心。
@@ -47,7 +51,7 @@ pip install -e .
 3. 预测：
 
 ```bash
-./property calc --rooms 3 --bathroom 2 --car 1 --distance 6.5
+./property calc [--rooms 3] [--bathroom 2] [--car 1] [--distance 6.5]
 ```
 
 	- 所有未显式指定的特征会自动使用数据集中位数/众数作为默认值。
