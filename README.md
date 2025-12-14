@@ -106,6 +106,38 @@ GET /predict?Rooms=3&Bathroom=2&Car=1&Distance=6.5
 若需要使用自定义模型/数据位置，可在启动前设置 `PROPERTY_MODEL_PATH`、`PROPERTY_DATA_PATH`、`PROPERTY_TARGET` 环境变量。
 
 
+## Docker 部署
+
+项目提供生产可用的 `Dockerfile`，默认使用 `gunicorn` 运行 Flask API。
+
+1. 训练模型（或将已有的 `models/melb_gbr_pipeline.joblib` 放入仓库）。
+2. 构建镜像：
+
+```bash
+docker build -t property-api:latest .
+```
+
+3. 运行容器：
+
+```bash
+docker run --rm -p 8000:8000 \
+	-e PROPERTY_MODEL_PATH=/app/models/melb_gbr_pipeline.joblib \
+	-e PROPERTY_DATA_PATH=/app/data/melb_data.csv \
+	property-api:latest
+```
+
+容器启动后，可通过 `http://localhost:8000/health` 或 `/predict` 访问 API。若希望挂载自定义模型或数据集，可使用 `-v /host/path:/app/models` 等方式覆盖镜像内默认文件。
+
+### docker-compose 快速启动
+
+项目根目录提供 `docker-compose.yml`，可自动构建镜像并挂载本地 `models/` 与 `data/` 目录：
+
+```bash
+docker compose up --build
+```
+
+启动完成后同样监听 `http://localhost:8000`。若需要修改端口或环境变量，可直接编辑 compose 文件中的 `ports` 或 `environment` 字段。
+
 
 ## 多核心训练说明
 
