@@ -5,9 +5,8 @@
 
 ## 功能概览
 
-- `src/database_ml/melb_price_model.py`：封装数据加载、特征工程、模型训练、评估与预测的可复用逻辑。
-- `src/database_ml/cli.py`：实现 `property` CLI 的全部子命令。
-- `main.py`：命令行入口，执行训练、输出关键评估指标，并保存可复用的 `scikit-learn` Pipeline（含预处理与模型）。
+- `src/property/melb_price_model.py`：封装数据加载、特征工程、模型训练、评估与预测的可复用逻辑。
+- `src/property/cli.py`：实现 `property` CLI 的全部子命令。
 - 训练完成后会自动将模型保存至 `models/melb_gbr_pipeline.joblib`，可直接加载进行推理。
 
 ## 环境准备
@@ -16,13 +15,7 @@
 2. 安装项目依赖（若已通过 `uv` 或其他工具同步，可跳过）：
 
 ```bash
-/run/media/CandySanjo/E85E61615E612990/Code_Workspace/database/.venv/bin/python -m pip install pandas scikit-learn scipy matplotlib ipykernel joblib
-```
-
-## 运行训练
-
-```bash
-/run/media/CandySanjo/E85E61615E612990/Code_Workspace/database/.venv/bin/python main.py
+uv add pandas scikit-learn scipy matplotlib ipykernel joblib
 ```
 
 脚本将：
@@ -33,14 +26,13 @@
 4. 将训练好的 Pipeline 序列化保存到 `models/melb_gbr_pipeline.joblib`，方便后续加载推理。
 
 ## CLI：`property train` & `property calc`
-
-在项目根目录提供了可执行脚本 `property`，封装了常用的训练与预测操作。
-
-1. 首次使用可为脚本添加执行权限（或直接使用 `python property ...`）：
+1. 在虚拟环境中直接通过 `property` 命令调用，可执行可编辑安装：
 
 ```bash
-chmod +x property
+pip install -e .
 ```
+
+安装完成后，可在任意位置使用 `property train` / `property calc`（使用相对路径或参数指定数据/模型位置）。
 
 2. 训练：
 
@@ -62,13 +54,7 @@ chmod +x property
 	- 可以使用 `--feature COLUMN=VALUE` 形式覆盖任何额外列（可重复传入）。
 	- 若模型文件不存在，可先运行 `property train` 生成。
 
-4. 如希望在虚拟环境中直接通过 `property` 命令调用，可执行可编辑安装：
 
-```bash
-pip install -e .
-```
-
-安装完成后，可在任意位置使用 `property train` / `property calc`（使用相对路径或参数指定数据/模型位置）。
 
 ## 多核心训练说明
 
@@ -78,8 +64,7 @@ pip install -e .
 
 ## 自定义与复用
 
-- 若需调整数据路径、随机种子或模型保存路径，可在 `main.py` 中修改 `TrainingConfig` 参数。
-- 也可以在其他脚本中引入 `database_ml.melb_price_model`，通过 `train_gradient_boosting` 获取 Pipeline，并调用 `predict_price` 进行自定义输入的房价预测。
+- 在其他脚本中引入 `property.melb_price_model`，通过 `train_gradient_boosting` 获取 Pipeline，并调用 `predict_price` 进行自定义输入的房价预测。
 
 ## 数据来源
 

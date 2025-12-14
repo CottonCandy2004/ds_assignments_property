@@ -1,5 +1,5 @@
 [project]
-name = "database"
+name = "property"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-property = "database_ml.cli:main"
+property = "property.cli:main"
 
 [build-system]
 requires = ["setuptools>=69.0"]

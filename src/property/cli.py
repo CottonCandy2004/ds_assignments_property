@@ -9,14 +9,14 @@ from typing import Any, Dict, Iterable, Tuple
 
 import pandas as pd
 
-from src.melb_price_model import (
+from property.melb_price_model import (
     TrainingConfig,
     load_trained_pipeline,
     predict_price,
     train_gradient_boosting,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATA = PROJECT_ROOT / "data" / "melb_data.csv"
 DEFAULT_MODEL = PROJECT_ROOT / "models" / "melb_gbr_pipeline.joblib"
 DEFAULT_TARGET = "Price"
@@ -118,6 +118,8 @@ def handle_train(args: argparse.Namespace) -> None:
         test_size=args.test_size,
         random_state=args.random_state,
         target_column=args.target,
+        use_hist_gradient_boosting=not args.disable_hist,
+        n_threads=args.n_threads,
     )
 
     result = train_gradient_boosting(config)
@@ -178,6 +180,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     train_parser.add_argument(
         "--target", default=DEFAULT_TARGET, help="Target column name in the dataset"
+    )
+    train_parser.add_argument(
+        "--n-threads",
+        type=int,
+        default=None,
+        help="Limit CPU threads for training (default: use all available cores)",
+    )
+    train_parser.add_argument(
+        "--disable-hist",
+        action="store_true",
+        help="Fallback to classic GradientBoostingRegressor (single-core).",
     )
     train_parser.set_defaults(func=handle_train)
 
