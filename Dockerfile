@@ -15,6 +15,10 @@ RUN DEB_VERSION=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2) \
     && echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ $DEB_VERSION-backports main contrib non-free" >> /etc/apt/sources.list \
     && echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security/ $DEB_VERSION-security main contrib non-free" >> /etc/apt/sources.list
 
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl
+
 WORKDIR /app
 
 # Copy project metadata first (better cache behaviour when code changes)
@@ -36,7 +40,7 @@ ENV PROPERTY_MODEL_PATH="/app/models/melb_gbr_pipeline.joblib" \
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD curl -fsS http://127.0.0.1:8000/health || exit 1
 
 CMD ["gunicorn", "--workers", "2", "--timeout", "120", "--bind", "0.0.0.0:8000", "property.api:app"]
