@@ -1,0 +1,33 @@
+[project]
+name = "database"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ipykernel>=7.1.0",
+    "ipynb>=0.5.1",
+    "joblib>=1.4.2",
+    "matplotlib>=3.10.8",
+    "pandas>=2.3.3",
+    "pip>=25.3",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.16.3",
+]
+
+[project.scripts]
+property = "database_ml.cli:main"
+
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
