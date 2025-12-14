@@ -55,6 +55,57 @@ pip install -e .
 	- 若模型文件不存在，可先运行 `property train` 生成。
 
 
+## Flask API 服务
+
+在保留 CLI 能力的同时，项目新增了一个轻量级 Flask API，可通过 GET 请求对房价进行预测。
+
+1. 确保已经训练并保存好模型（默认 `models/melb_gbr_pipeline.joblib`）。
+2. 启动服务：
+
+```bash
+export FLASK_APP=property.api
+export PYTHONPATH=src  # 若未安装为包，可临时添加
+flask run --host 0.0.0.0 --port 5000
+```
+
+也可以直接运行 `python -m property.api`，通过 `HOST`、`PORT` 环境变量调整监听地址。
+
+### 路由说明
+
+- `GET /health`：返回模型路径、数据路径、目标列等基础信息。
+- `GET /predict`：根据查询参数进行推理，返回 JSON，例如：
+
+```
+GET /predict?Rooms=3&Bathroom=2&Car=1&Distance=6.5
+```
+
+> 所有特征（包括 CLI 中的别名）都可以作为查询参数；未提供的特征将继续使用数据集中位数/众数作为默认值。若需要覆盖其他列，可多次传入 `feature=Column=Value`。
+
+响应示例：
+
+```json
+{
+	"prediction": 880123.42,
+	"currency": "AUD",
+	"features": {
+		"Rooms": 3,
+		"Bathroom": 2,
+		"Car": 1,
+		"Distance": 6.5,
+		"...": "..."
+	},
+	"overrides": {
+		"Rooms": 3,
+		"Bathroom": 2,
+		"Car": 1,
+		"Distance": 6.5
+	}
+}
+```
+
+若需要使用自定义模型/数据位置，可在启动前设置 `PROPERTY_MODEL_PATH`、`PROPERTY_DATA_PATH`、`PROPERTY_TARGET` 环境变量。
+
+
 
 ## 多核心训练说明
 
