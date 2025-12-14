@@ -14,12 +14,16 @@
 1. 创建或激活 Python 3.11+ 虚拟环境。
 2. 安装项目依赖（若已通过 `uv` 或其他工具同步，可跳过）：
 
+### Linux
 ```bash
-uv add pandas scikit-learn scipy matplotlib ipykernel joblib
+uv init
+source ./.venv/bin/activate
 ```
-or
+
+### Windows
 ```bash
-uv build
+uv init
+.venv/bin/activate
 ```
 
 脚本将：
@@ -33,25 +37,25 @@ uv build
 1. 在虚拟环境中直接通过 `property` 命令调用，可执行可编辑安装：
 
 ```bash
-uv pip install -e .
+uv pip install .
 ```
 
-安装完成后，可在任意位置使用 `property train` / `property calc`（使用相对路径或参数指定数据/模型位置）。
+安装完成后，可使用 `property train` / `property calc`。
 
 2. 训练：
 
 ```bash
-./property train [--data data/melb_data.csv] [--model models/melb_gbr_pipeline.joblib]
+property train [--data data/melb_data.csv] [--model models/melb_gbr_pipeline.joblib]
 ```
 
 	- 默认启用 `HistGradientBoostingRegressor`，可自动利用多核心。
 	- 如需限制 CPU 线程，可添加 `--n-threads 4` 等参数。
 	- 若因兼容问题希望退回单核版本，可追加 `--disable-hist`。
-
+	- 详细参数可使用 `property train -h`查看
 3. 预测：
 
 ```bash
-./property calc [--rooms 3] [--bathroom 2] [--car 1] [--distance 6.5]
+property calc [--rooms 3] [--bathroom 2] [--car 1] [--distance 6.5]
 ```
 
 	- 所有未显式指定的特征会自动使用数据集中位数/众数作为默认值。
@@ -135,6 +139,8 @@ docker run --rm -p 8000:8000 \
 ### docker-compose 快速启动
 
 项目根目录提供 `docker-compose.yml`，可自动构建镜像并挂载本地 `models/` 与 `data/` 目录：
+
+> 不要忘了训练模型
 
 ```bash
 docker compose up --build
