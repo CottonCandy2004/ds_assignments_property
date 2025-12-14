@@ -48,6 +48,10 @@ chmod +x property
 ./property train --data data/melb_data.csv --model models/melb_gbr_pipeline.joblib
 ```
 
+	- 默认启用 `HistGradientBoostingRegressor`，可自动利用多核心。
+	- 如需限制 CPU 线程，可添加 `--n-threads 4` 等参数。
+	- 若因兼容问题希望退回单核版本，可追加 `--disable-hist`。
+
 3. 预测：
 
 ```bash
@@ -66,10 +70,16 @@ pip install -e .
 
 安装完成后，可在任意位置使用 `property train` / `property calc`（使用相对路径或参数指定数据/模型位置）。
 
+## 多核心训练说明
+
+- 默认训练器为 `HistGradientBoostingRegressor`，内部使用 OpenMP 并行，可自动利用全部可用 CPU 核心。
+- 通过 `--n-threads` 可显式限定使用的线程数（同时影响 MKL/OPENBLAS/NumExpr 等数值库）。
+- 若遇到特定平台不支持的情况，可用 `--disable-hist` 回退到经典 `GradientBoostingRegressor`（单核心实现）。
+
 ## 自定义与复用
 
 - 若需调整数据路径、随机种子或模型保存路径，可在 `main.py` 中修改 `TrainingConfig` 参数。
-- 也可以直接在其他脚本中引入 `src.melb_price_model`，通过 `train_gradient_boosting` 获取 Pipeline，并调用 `predict_price` 进行自定义输入的房价预测。
+- 也可以在其他脚本中引入 `database_ml.melb_price_model`，通过 `train_gradient_boosting` 获取 Pipeline，并调用 `predict_price` 进行自定义输入的房价预测。
 
 ## 数据来源
 

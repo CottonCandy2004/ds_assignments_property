@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -7,7 +8,7 @@ from typing import Any, Dict, List, Optional
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor, HistGradientBoostingRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
@@ -24,6 +25,8 @@ class TrainingConfig:
     test_size: float = 0.2
     random_state: int = 42
     model_output_path: Optional[Path] = None
+    use_hist_gradient_boosting: bool = True
+    n_threads: Optional[int] = None
 
 
 @dataclass
@@ -80,13 +83,35 @@ def _build_preprocessor(
     return ColumnTransformer(transformers=transformers)
 
 
+def _configure_threading(n_threads: Optional[int]) -> None:
+    """Optionally constrain the number of CPU threads used by numeric backends."""
+
+    if n_threads is None or n_threads <= 0:
+        return
+
+    thread_env_vars = (
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+    )
+
+    for env_var in thread_env_vars:
+        os.environ[env_var] = str(n_threads)
+
+
 def _build_pipeline(
     numeric_features: List[str],
     categorical_features: List[str],
     random_state: int,
+    use_hist_gradient_boosting: bool,
 ) -> Pipeline:
     preprocessor = _build_preprocessor(numeric_features, categorical_features)
-    regressor = GradientBoostingRegressor(random_state=random_state)
+    if use_hist_gradient_boosting:
+        regressor = HistGradientBoostingRegressor(random_state=random_state)
+    else:
+        regressor = GradientBoostingRegressor(random_state=random_state)
     return Pipeline(steps=[("preprocessor", preprocessor), ("regressor", regressor)])
 
 
@@ -100,7 +125,12 @@ def train_gradient_boosting(config: TrainingConfig) -> TrainingResult:
     numeric_features = feature_frame.select_dtypes(include=["number"]).columns.tolist()
     categorical_features = feature_frame.select_dtypes(exclude=["number"]).columns.tolist()
 
-    pipeline = _build_pipeline(numeric_features, categorical_features, config.random_state)
+    pipeline = _build_pipeline(
+        numeric_features,
+        categorical_features,
+        config.random_state,
+        config.use_hist_gradient_boosting,
+    )
 
     X_train, X_test, y_train, y_test = train_test_split(
         feature_frame,
@@ -109,6 +139,7 @@ def train_gradient_boosting(config: TrainingConfig) -> TrainingResult:
         random_state=config.random_state,
     )
 
+    _configure_threading(config.n_threads)
     pipeline.fit(X_train, y_train)
     predictions = pipeline.predict(X_test)
 

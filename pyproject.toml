@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "flask>=3.1.2",
     "ipykernel>=7.1.0",
     "ipynb>=0.5.1",
     "joblib>=1.4.2",
@@ -22,12 +23,12 @@ property = "database_ml.cli:main"
 requires = ["setuptools>=69.0"]
 build-backend = "setuptools.build_meta"
 
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[[tool.uv.index]]
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true

@@ -1,0 +1,3 @@
+[submodule "reports"]
+	path = reports
+	url = git@github.com:CottonCandy2004/ds_assignments_report.git
