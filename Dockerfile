@@ -28,6 +28,7 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 COPY data ./data
 COPY models ./models
+COPY config ./config
 
 RUN pip install --upgrade -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple pip setuptools wheel \
     && pip install --no-cache-dir -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple .

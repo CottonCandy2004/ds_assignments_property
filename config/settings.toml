@@ -1,0 +1,12 @@
+[app]
+secret_key = "change-me"
+
+[database]
+url = "mysql+pymysql://property:6k51g6zb38dC6nl71DL0@172.17.0.1:3306/property"
+pool_size = 5
+pool_recycle = 1800
+pool_timeout = 30
+
+[security]
+token_exp_minutes = 60
+token_algorithm = "HS256"

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Property Insight • 用户终端</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="config.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="top-nav">
+        <div>
+          <p class="eyebrow">Melbourne Market Console</p>
+          <h1>Property Insight 用户端</h1>
+        </div>
+        <div class="nav-actions">
+          <span id="userWelcome" class="welcome">尚未登录</span>
+          <button id="logoutBtn" class="ghost" disabled>退出登录</button>
+        </div>
+      </header>
+
+      <section class="journey" aria-label="体验流程">
+        <div class="journey-step" data-stage-indicator="auth">
+          <span class="step-label">登录 / 注册</span>
+          <span class="step-number">01</span>
+        </div>
+        <div class="journey-step" data-stage-indicator="console">
+          <span class="step-label">控制台</span>
+          <span class="step-number">02</span>
+        </div>
+        <div class="journey-step" data-stage-indicator="predict">
+          <span class="step-label">计算房价</span>
+          <span class="step-number">03</span>
+        </div>
+      </section>
+
+      <section id="view-auth" class="view active" data-view="auth">
+        <div class="auth-shell">
+          <div class="auth-copy">
+            <h2>第 1 步 · 登录</h2>
+            <p>
+              注册将立即返回一个无状态 Bearer Token，并在登录后进入控制台。所有密码以 bcrypt 存储，令牌默认 60 分钟失效。
+            </p>
+            <button id="pingHealth" class="secondary">探测 /health</button>
+            <span id="healthStatus" class="status-chip">等待检测</span>
+            <p class="metric">模型特征数：<strong id="modelSummary">--</strong></p>
+          </div>
+          <div class="auth-forms">
+            <form id="registerForm" class="card" autocomplete="off" novalidate>
+              <h3>注册新账号</h3>
+              <label class="field">
+                <span>用户名</span>
+                <input name="username" type="text" placeholder="analyst" required />
+              </label>
+              <label class="field">
+                <span>密码</span>
+                <input name="password" type="password" placeholder="至少 8 位" required />
+              </label>
+              <button class="primary" type="submit">注册并登录</button>
+            </form>
+            <form id="loginForm" class="card" autocomplete="off" novalidate>
+              <h3>已有账号？直接登录</h3>
+              <label class="field">
+                <span>用户名</span>
+                <input name="username" type="text" placeholder="analyst" required />
+              </label>
+              <label class="field">
+                <span>密码</span>
+                <input name="password" type="password" placeholder="••••••••" required />
+              </label>
+              <button class="secondary" type="submit">登录控制台</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-console" class="view" data-view="console">
+        <div class="console-grid">
+          <article class="card status-panel">
+            <header>
+              <h2>控制台</h2>
+              <p>查看连接状态、复制令牌或快速注销。</p>
+            </header>
+            <div class="status-row">
+              <span class="label">当前用户</span>
+              <span class="value" id="consoleUser">--</span>
+            </div>
+            <div class="status-row">
+              <span class="label">令牌预览</span>
+              <span class="value" id="tokenPreview">尚未登录</span>
+            </div>
+            <div class="token-actions">
+              <button id="copyToken" class="ghost" disabled>复制 Bearer Token</button>
+              <button id="logoutInline" class="ghost secondary">退出</button>
+            </div>
+            <p class="console-message" id="consoleMessage">登录后可在此查看账号状态。</p>
+          </article>
+
+          <article class="card predict-panel">
+            <header>
+              <h2>第 3 步 · 计算房价</h2>
+              <p>填写核心特征，可附加任意 `feature=列名=值`。</p>
+            </header>
+            <form id="predictForm" class="predict-form" novalidate>
+              <div class="form-grid">
+                <label class="field">
+                  <span>Rooms</span>
+                  <input name="Rooms" type="number" min="1" step="1" placeholder="3" />
+                </label>
+                <label class="field">
+                  <span>Bathroom</span>
+                  <input name="Bathroom" type="number" min="1" step="1" placeholder="2" />
+                </label>
+                <label class="field">
+                  <span>Car</span>
+                  <input name="Car" type="number" min="0" step="1" placeholder="1" />
+                </label>
+                <label class="field">
+                  <span>Distance (km)</span>
+                  <input name="Distance" type="number" min="0" step="0.1" placeholder="6.5" />
+                </label>
+              </div>
+              <label class="field">
+                <span>自定义特征 (每行 `列名=值`)</span>
+                <textarea name="custom" rows="3" placeholder="Type=house
+Landsize=200"></textarea>
+              </label>
+              <div class="predict-actions">
+                <button class="primary" type="submit">提交计算</button>
+                <label class="switch">
+                  <input id="roundResult" type="checkbox" checked />
+                  <span>前端四舍五入</span>
+                </label>
+              </div>
+            </form>
+            <div class="result-card" id="resultCard">
+              <p class="result-label">最近一次预测</p>
+              <p class="result-value" id="resultValue">尚无结果</p>
+              <p class="result-meta" id="resultMeta">填写表单后即可看到预估价格。</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

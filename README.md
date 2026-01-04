@@ -35,6 +35,31 @@ uv sync
 3. 打印 R²、MAE、RMSE 等指标，并展示对样例房源的预测结果。
 4. 将训练好的 Pipeline 序列化保存到 `models/melb_gbr_pipeline.joblib`，方便后续加载推理。
 
+## 配置文件（TOML）
+
+Flask API 会在启动时通过 `property.config.load_settings` 读取 `config/settings.toml`（可通过环境变量 `PROPERTY_CONFIG_PATH` 指定自定义路径），其中存放关键配置：
+
+```toml
+[app]
+secret_key = "change-me"
+
+[database]
+url = "mysql+pymysql://property_user:property_password@localhost:3306/property"
+pool_size = 5
+pool_recycle = 1800
+pool_timeout = 30
+
+[security]
+token_exp_minutes = 60
+token_algorithm = "HS256"
+```
+
+- `app.secret_key`：用于 Flask/加密用途，请替换为随机字符串。
+- `database`：配置 MySQL 连接字符串以及可选的连接池参数。启动时若库不存在表，将自动创建 `users` 表。
+- `security`：控制基于 PyJWT 的无状态访问令牌（默认 60 分钟、HS256 签名）。
+- 若需限制跨域来源，可设置 `PROPERTY_CORS_ORIGINS` 环境变量（逗号分隔），默认允许所有来源，便于本地前端调试。
+- 生产环境建议将此文件放在独立的安全位置，并通过 `PROPERTY_CONFIG_PATH` 指向该文件。
+
 ## CLI：`property train` & `property calc`
 1. 在虚拟环境中直接通过 `property` 命令调用 `property train` / `property calc`。
 
@@ -108,6 +133,17 @@ GET /predict?Rooms=3&Bathroom=2&Car=1&Distance=6.5
 ```
 
 若需要使用自定义模型/数据位置，可在启动前设置 `PROPERTY_MODEL_PATH`、`PROPERTY_DATA_PATH`、`PROPERTY_TARGET` 环境变量。
+
+- `POST /auth/register`：接收形如 `{"username": "alice", "password": "hunter42"}` 的 JSON。密码至少 8 位，用户名唯一。服务器使用 bcrypt 存储密码，并返回用户信息与 `Bearer` 访问令牌。
+- `POST /auth/login`：同样接受用户名与密码 JSON。校验通过后返回用户信息与新的无状态访问令牌，响应中包含 `token_type` 与 `expires_in`（秒）。
+
+认证路由依赖于配置文件中的 MySQL 数据库。只需预先创建数据库实例（无需手动建表），服务启动后会自动迁移 `users` 表。客户端可将令牌存储在本地并在后续请求中通过 `Authorization: Bearer <token>` 头发送，无需服务器端会话状态。
+
+## Web 用户端
+
+- `web/` 目录提供了一个单页前端，按 “登录 → 控制台 → 计算房价” 的流程组织，默认通过 `web/config.js` 中的 `apiBase` 访问 API。
+- 部署到 Docker 时，`docker-compose.yml` 已包含 `web` 服务，运行 `docker compose up --build` 后即可在 `http://localhost:9000` 打开用户端，`PROPERTY_CORS_ORIGINS` 自动与之匹配。
+- 若在其他环境运行，只需修改 `web/config.js` 的 `apiBase`（例如指向云端域名），再重新构建 `Dockerfile.web` 或通过任意静态服务器托管该目录。
 
 
 ## Docker 部署

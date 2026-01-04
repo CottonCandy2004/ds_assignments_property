@@ -14,7 +14,22 @@ services:
       PROPERTY_TARGET: Price
       HOST: 0.0.0.0
       PORT: "8000"
+      PROPERTY_CORS_ORIGINS: http://localhost:9000,http://127.0.0.1:9000
     volumes:
       - ./models:/app/models:ro
       - ./data:/app/data:ro
+      - ./config/settings.toml:/usr/local/lib/python3.11/config/settings.toml:ro
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: property-web:latest
+    depends_on:
+      - api
+    volumes:
+      - ./config/webconfig.js:/usr/share/nginx/html/config.js:ro
+    ports:
+      - "9000:80"
     restart: unless-stopped
